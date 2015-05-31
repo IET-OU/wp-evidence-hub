@@ -309,33 +309,16 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 		  <a href="#" id="map-reset-button" onclick="document.location.reload();return false"><i class="el-icon-refresh x-el-icon-zoom-out"></i>Refresh map</a> <i class=sep ></i>
 		  <a href="#" id="evidence-map-fullscreen"><i class=el-icon-fullscreen ></i>Full Screen</a>
 		</div>
-		<script src="<?php echo plugins_url( 'lib/map/lib/bigscreen.min.js' , EVIDENCE_HUB_REGISTER_FILE )?>" charset="utf-8"></script>
-		<script>
-		var element = document.getElementById('evidence-map');
-		jQuery('#evidence-map-fullscreen').on('click', function () {
-			if (BigScreen.enabled) {
-				BigScreen.request(element, onEnterEvidenceMap, onExitEvidenceMap);
-				// You could also use .toggle(element, onEnter, onExit, onError)
-			}
-			else {
-				// fallback for browsers that don't support full screen
-			}
-		});
 
-		// called when the first element enters full screen
-
-		function onEnterEvidenceMap(){
-			jQuery('#evidence-map').css('height', '100%');
-			jQuery('#map').css('height', jQuery('#evidence-map').height());
-			map.invalidateSize();
-		}
-		function onExitEvidenceMap(){
-			jQuery('#evidence-map').css('height', '');
-			jQuery('#map').css('height', parseInt(jQuery('#evidence-map').width() * 9/16));
-			map.invalidateSize();
-		}
-		</script>
 <?php
+		$path = EVIDENCE_HUB_REGISTER_FILE;
+		$scripts = array(
+			plugins_url( 'lib/map/lib/bigscreen.min.js', $path ),
+			plugins_url( 'js/map-fullscreen.js', $path ),
+		);
+		foreach ($scripts as $idx => $js) {
+			wp_enqueue_script('fullscreen-js-'. $idx, $js, array('jquery'), null, $in_footer = true);
+		}
 	}
 
     /** Output Javascript with configuration options [Bug: #49]
@@ -369,6 +352,12 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 		    'no_location_latlng' => $this->decode_option(
 		        'evidence_geomap_no_location_latlng' ),  // [Bug: #50]
 		    'hypothesis_word' => $this->is_proposition() ? 'Proposition' : 'Hypothesis',
+		    'loading_sel'  => '.oer-chart-loading',
+		    'outer_map_id' => 'evidence-map',
+		    'outer_map_sel'=> '#evidence-map',
+		    'map_id'  => 'map',
+		    'map_sel' => '#map',
+		    'pluginurl' => EVIDENCE_HUB_URL,
 		));
     }
 

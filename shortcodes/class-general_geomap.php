@@ -30,6 +30,26 @@ class Evidence_Hub_Shortcode_GeoMap extends Evidence_Hub_Shortcode {
 
 	protected static $post_types_with_shortcode = array();
 
+
+    protected function enqueue_leaflet_map_scripts() {
+        $path = EVIDENCE_HUB_REGISTER_FILE;
+        $scripts = array(
+            'http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js',
+            plugins_url( 'js/markercluster/leaflet.markercluster-src.js', $path ),
+            plugins_url( 'js/leaflet-map.js' , $path ),
+            plugins_url( 'js/map-visualization.js', $path ),
+        );
+
+        foreach ($scripts as $idx => $js) {
+            wp_enqueue_script('leaflet-js-'. $idx, $js, array('jquery'), null, $in_footer = true);
+        }
+        ?>
+	<script>
+        google.load('visualization', '1.1', { packages: [ 'controls' ] });
+    </script>
+<?php
+    }
+
 	/**
 	* Generate post content.
 	*
@@ -39,6 +59,9 @@ class Evidence_Hub_Shortcode_GeoMap extends Evidence_Hub_Shortcode {
 	protected function content() {
 		ob_start();
 		extract($this->options);
+
+		$this->enqueue_leaflet_map_scripts();
+
 		$errors = array();	
 		$sub_options = array();
 		$hypothesis_options = array();
@@ -121,18 +144,25 @@ class Evidence_Hub_Shortcode_GeoMap extends Evidence_Hub_Shortcode {
          </div>
          <script>
 		 /* <![CDATA[ */
-			var json = <?php $this->print_json_file($this->get_api_url( 'hub.get_geojson' ) .'count=-1&type='. strtolower($type)) ?>;	
-			var hubPoints = json['geoJSON'] || null;
-			var pluginurl = '<?php echo EVIDENCE_HUB_URL; ?>';
-			var h = (jQuery('#evidence-map').width() > 820) ? parseInt(jQuery('#evidence-map').width() * 9 / 16) : 560;
-			jQuery('#map').css('height', h);
-			<?php $this->print_leaflet_geomap_options_javascript() ?>	
+		var OERRH = OERRH || {};
+
+		var json = OERRH.map_json = <?php $this->print_json_file($this->get_api_url( 'hub.get_geojson' ) .'count=-1&type='. strtolower($type)) ?>;	
+		var hubPoints = json['geoJSON'] || null;
+		var pluginurl = '<?php echo EVIDENCE_HUB_URL; ?>';
+
+		jQuery(function ($) {
+			var $map_width = $('#evidence-map').width()
+			  , $map = $('#map')
+			  , height = ($map_width > 820) ? parseInt($map_width * 9 / 16) : 560;
+			$map.css('height', height);
+		});
+		<?php $this->print_leaflet_geomap_options_javascript() ?>
 		/* ]]> */
 		</script>
         <link rel="stylesheet" href="<?php echo plugins_url( 'js/markercluster/MarkerCluster.css' , EVIDENCE_HUB_REGISTER_FILE )?>" />
         <link rel="stylesheet" href="<?php echo plugins_url( 'js/markercluster/MarkerCluster.Default.css' , EVIDENCE_HUB_REGISTER_FILE )?>" />
-        <script src="<?php echo plugins_url( 'js/markercluster/leaflet.markercluster-src.js' , EVIDENCE_HUB_REGISTER_FILE )?>" charset="utf-8"></script>
-		<script src="<?php echo plugins_url( 'js/leaflet-map.js?v=6' , EVIDENCE_HUB_REGISTER_FILE )?>" charset="utf-8"></script>
+        <!--<script src="<?php echo plugins_url( 'js/markercluster/leaflet.markercluster-src.js' , EVIDENCE_HUB_REGISTER_FILE )?>" charset="utf-8"></script>
+		<script src="<?php echo plugins_url( 'js/leaflet-map.js?v=6' , EVIDENCE_HUB_REGISTER_FILE )?>" charset="utf-8"></script>-->
 
 		<?php $this->print_fullscreen_button_html_javascript() ?>
 		<?php if ($display_key) {
@@ -150,159 +180,12 @@ class Evidence_Hub_Shortcode_GeoMap extends Evidence_Hub_Shortcode {
 		return ob_get_clean();
 	}
 
-	protected function renderGoogleTable() { ?>
+	protected function renderGoogleTable() {
+		// See: js/map-visualization.js
+		return;
+		?>
         <script>
           google.load('visualization', '1.1', { packages: [ 'controls' ] });
         </script>
-        <script>
-		var data, table;
-		var pickers = {};;
-		var c = [];
-		var tableArray = [];
-		var summaryControl = L.Control.extend({
-			options: {
-				position: OERRH.geomap.summary_position || 'bottomleft'
-
-			},
-
-			onAdd: function (map) {
-				// create the control container with a particular class name
-				var controlDiv = L.DomUtil.create('div', 'summary-table-block');
-				controlDiv.innerHTML = "<div id='tbl-holder'><div class='tbl-header'>Results (<span id='result-count'></span>) <div class='expander'>▼</div></div><div id='summary-table'><div id='control1'></div><div id='table1'></div></div></div>";	
-				L.DomEvent.disableClickPropagation(controlDiv);
-				return controlDiv;
-			}
-		});
-		map.addControl(new summaryControl());
-
-		function drawVisualization() {
-			// Prepare the data.
-			var d = json['geoJSON'] || null;
-			var row = ["id", "type", "name", "desc", "url", "sector", "polarity", "project", "hypothesis_id", "hypothesis", "locale"];
-			if (d){
-				/*for (var k in d[0].properties) {
-					row.push(k);
-				}*/
-				tableArray.push(row);
-				for (var i=0,  tI=d.length; i < tI; i++) {
-					var row = [];
-					for (var j=0,  tJ=tableArray[0].length; j < tJ; j++) {
-						if (d[i].properties[tableArray[0][j]] instanceof Array) {
-							row.push(d[i].properties[tableArray[0][j]].join(","));
-						} else {
-							row.push(d[i].properties[tableArray[0][j]]);
-						}
-					}
-					tableArray.push(row);
-				}
-			}
-			
-			data = google.visualization.arrayToDataTable(tableArray, false);
-			for (i=0; i<data.getNumberOfColumns(); i++){
-				c[data.getColumnLabel(i)] = i;
-			} 
-
-			var formatter = new google.visualization.PatternFormat('<div>{1} - <span style="text-transform: capitalize;">{2}</span></div></div>');
-			formatter.format(data, [c['url'],c['name'], c['type']], c['desc']);
-
-		window.console && console.log(c);
-
-			// Define a StringFilter control for the 'Name' column
-			var stringFilter = new google.visualization.ControlWrapper({
-			  'controlType': 'StringFilter',
-			  'containerId': 'control1',
-			  'options': {
-				'filterColumnIndex': c['name'],
-				'matchType': 'any',
-				'ui': {'label': 'Search',}
-			  }
-			});
-			jQuery('#evidence-map select').each(function(i,v) {
-				var name = v.id.substring(13)
-				pickers[name] = picker(name);
-				v.addEventListener(
-							 'change',
-							 function() {
-								pickers[name].setState({value: this.value});
-								pickers[name].draw();
-								document.getElementById('result-count').innerHTML = table.getDataTable().getNumberOfRows();
-							 },
-							 false
-						  );
-			});
-		  	var cssClassNames = {headerRow: 'tbl-head', 
-								 headerCell: 'tbl-head',
-								 tableRow: 'tbl-row',
-								 oddTableRow: 'tbl-row'};
-			// Define a table visualization
-			table = new google.visualization.ChartWrapper({
-			  'chartType': 'Table',
-			  'containerId': 'table1',
-			  'options': {'height': '300px', 
-						  'width': '22em',
-						  //'page': 'enable',
-						  //'pageSize': 5,
-						  'allowHtml': true,
-						  'pagingSymbols': {prev: 'prev', next: 'next'},
-						  'pagingButtonsConfiguration': 'auto',
-						  'cssClassNames': cssClassNames},
-			  'view': {'columns': [c['desc']]}
-			});
-
-			google.visualization.events.addListener(table, 'ready', onReady);
-			google.visualization.events.addListener(stringFilter, 'statechange', function () {
-				var state = stringFilter.getState();
-				document.getElementById('result-count').innerHTML = table.getDataTable().getNumberOfRows();
-			});
-		  
-			// Create the dashboard.
-			var dashboard = new google.visualization.Dashboard(document.getElementById('summary-table')).
-			  // Configure the string filter to affect the table contents
-			  bind(stringFilter, table);
-			for (pick in pickers){
-				dashboard.bind(pickers[pick], table);
-			}
-			  //bind(pickers['type'], table).
-			  // Draw the dashboard
-			  dashboard.draw(data);
-			  
-			  document.getElementById('tbl-holder').style.display = 'block';
-		  }
-		  function onReady(){
-			  google.visualization.events.addListener(table.getChart() , 'select', function(){
-				var sel = table.getChart().getSelection();
-				map.setZoom(3);
-				var curID = table.getDataTable().getValue(sel[0].row, c['id']);
-				var currentMarker = markerMap[curID];
-				setTimeout(function() {  markers.zoomToShowLayer(currentMarker, function(){
-					currentMarker.openPopup();
-				});}, 1000);
-				table.getChart().setSelection(null);
-				event.preventDefault();
-				return false;
-			});
-			document.getElementById('result-count').innerHTML = table.getDataTable().getNumberOfRows();
-			jQuery(".oer-chart-loading").hide();
-		  }
-
-		  function picker(type){
-			var newdiv = document.createElement('div');
-			newdiv.setAttribute('id','control-'+type);
-			newdiv.setAttribute('style', 'display:none');
-			document.getElementById('summary-table').appendChild(newdiv);
-			
-			return new google.visualization.ControlWrapper({
-				'controlType': 'StringFilter',
-				'containerId': 'control-'+type,
-				'options': {
-				  'filterColumnIndex': c[type],
-				  'ui': {
-					'allowTyping': false,
-				  }
-				},
-			});   
-		  }
-		  google.setOnLoadCallback(drawVisualization);
-	  </script>
  <?php }
 }

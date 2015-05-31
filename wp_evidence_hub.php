@@ -552,12 +552,12 @@ if(!class_exists('Evidence_Hub'))
 			wp_enqueue_style( 'evidence-hub-autocomplete', plugins_url( 'css/style.css' , EVIDENCE_HUB_REGISTER_FILE ), '1.0.1' );
 			wp_enqueue_script( 'evidence-hub-autocomplete', plugins_url( 'js/script.js' , EVIDENCE_HUB_REGISTER_FILE ), $scripts, '', true );
 			wp_register_script( 'd3js', plugins_url( 'lib/map/lib/d3.v3.min.js' , EVIDENCE_HUB_REGISTER_FILE), array( 'jquery' )  );
-			wp_enqueue_script( 'd3js' );
+			wp_enqueue_script( 'd3js', null, null, null, $in_footer = true );
 			
 			// dequeue Pronomic Google Maps Library scripts and requeue with modified location
 			wp_dequeue_script('pronamic_google_maps_admin');
 			wp_dequeue_style('pronamic_google_maps_admin');
-			wp_register_script('pronamic_google_maps_admin_eh', EVIDENCE_HUB_URL.'/lib/pronamic-google-maps/js/admin.js',	array( 'jquery', 'google-jsapi' ));
+			wp_register_script('pronamic_google_maps_admin_eh', EVIDENCE_HUB_URL.'/lib/pronamic-google-maps/js/admin.js', array( 'jquery', 'google-jsapi' ), null, $in_footer = true);
 			wp_register_style('pronamic_google_maps_admin_eh', EVIDENCE_HUB_URL.'/lib/pronamic-google-maps/css/admin.css'	);
 			// Add the localization for giving the settings.
 			wp_localize_script( 'pronamic_google_maps_admin_eh', 'pronamic_google_maps_settings', array(
@@ -589,7 +589,7 @@ if(!class_exists('Evidence_Hub'))
 			wp_enqueue_style( 'leafletcss', 'http://cdn.leafletjs.com/leaflet-'. $version .'/leaflet.css' );
 			wp_enqueue_style( 'leafletcss-ie8', 'http://cdn.leafletjs.com/leaflet-'. $version .'/leaflet.ie.css', array( 'leafletcss' )  );
 			$wp_styles->add_data( 'leafletcss-ie8', 'conditional', 'IE 8' );
-			wp_enqueue_script( 'leafletjs', 'http://cdn.leafletjs.com/leaflet-'. $version .'/leaflet.js' );
+			//wp_enqueue_script( 'leafletjs', 'http://cdn.leafletjs.com/leaflet-'. $version .'/leaflet.js' );
 		}
 
 		/**

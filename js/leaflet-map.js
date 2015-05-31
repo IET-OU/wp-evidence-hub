@@ -6,12 +6,14 @@
 */
 var OERRH = OERRH || {};
 
+
 window.console && console.log("OERRH:", OERRH);
 
-var iconuri = pluginurl+'images/icons/';
+var G = OERRH.geomap;
+var iconuri = G.pluginurl + 'images/icons/';
 
 //prepare the map
-var map = OERRH.geomap.map = L.map('map', { minZoom: 1 }).setView(OERRH.geomap.center || [25, 0], 2);
+var map = OERRH.geomap.map = L.map(G.map_id, { minZoom: 1 }).setView(OERRH.geomap.center || [25, 0], 2);
 L.tileLayer("http://{s}.tile.osm.org/{z}/{x}/{y}.png", {
 	attribution:
 		"&copy; <a href=\"http://osm.org/copyright\">OpenStreetMap</a> contributors" +
@@ -29,7 +31,7 @@ var filterControl = L.Control.extend({
 		return controlDiv;
     }
 });
-map.addControl(new filterControl());
+G.map.addControl(new filterControl());
 
 
 
@@ -123,7 +125,9 @@ function generateTable(){
 renderLayer(switches);
 
 function renderLayer(switches){
-	markerArray = [];
+	var markerArray = []
+	  , no_loc_count = 0;
+
 	L.geoJson(hubPoints, {
 		onEachFeature: function (feature, layer) {
 						var prop = feature.properties
@@ -139,7 +143,9 @@ function renderLayer(switches){
 							// Move "no location" markers [LACE][Bug: #50]
 							//if (no_loc && !coord[0] && !coord[1])
 							if (no_loc && near_zero(coord[0]) && near_zero(coord[1])) {
-								window.console && console.log("No location?", coord, prop);
+								no_loc_count++;
+
+								//window.console && console.log("No location?", coord, prop);
 
 								// Re-locate ... swap!
 								coord[ 0 ] = no_loc[ 1 ];
@@ -159,6 +165,8 @@ function renderLayer(switches){
 						}
 				}
 	});
+	window.console && console.log("No location count:", no_loc_count);
+
 	markers.addLayers(markerArray);
 }
 
@@ -200,7 +208,7 @@ markers.on('clusterclick', function (a) {
 map.addLayer(markers);
 var addTitle = function(){
 	
-	d3.xml(pluginurl+'images/logo.svg', "image/svg+xml", function(xml) {  
+	d3.xml(G.pluginurl + 'images/logo.svg', "image/svg+xml", function(xml) {  
 	  var importedNode = importNode(xml.documentElement, true);
 		jQuery('.leaflet-top.leaflet-left').append('<div id="maplogoholder"></div>'); 
 		var logo = d3.select('#maplogoholder')
