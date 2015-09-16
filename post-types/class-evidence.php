@@ -59,7 +59,7 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 				'description' => __("A piece of evidence to support a hypothesis"),
 				'taxonomies' => array('post_tag'),
 				'supports' => array(
-					'title', 'editor', 'excerpt', 'author', 'comments' 
+					'title', 'editor', 'excerpt', 'author', 'comments'
 				),
 				'capabilities' => array(
 					'edit_post'          => 'edit_evidence',
@@ -80,7 +80,7 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 			)
 		);
 	}
-	
+
 	/**
 	* Register custom post type fields.
 	*
@@ -88,7 +88,7 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 	*/
 	function set_options(){
 		$hypothesis_options = array();
-		// get all the hypothesis ids													
+		// get all the hypothesis ids
 		$hypotheses = get_posts( array(	'post_type' => 'hypothesis', // my custom post type
 										'posts_per_page' => -1,
 										'post_status' => 'publish',
@@ -98,7 +98,7 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 		foreach($hypotheses as $hypothesis){
 			$hypothesis_options[$hypothesis] = get_the_title($hypothesis);
 		}
-		
+
 		// regester different field options
 		$this->options = array_merge($this->options, array(
 			'post_type' => array(
@@ -139,10 +139,11 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 		 $this->options = array_merge($this->options, array(
 			'sector' => array(
 				'type' => 'select',
+				'required' => true,
 				'save_as' => 'term',
 				'position' => 'side',
 				'quick_edit' => true,
-				'label' => 'Sector',
+        		'label' => __('Sector', self::LOC_DOMAIN),
 				'options' => get_terms('evidence_hub_sector', 'hide_empty=0&orderby=id'),
 				)
 		 ));
@@ -189,15 +190,15 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 
 		 Evidence_Hub::$post_type_fields[$this->get_post_type() ] = $this->options;
 	}
-		
+
 	/**
 	* Register custom fields box in wp-admin.
 	*
 	* @since 0.1.1
 	*/
 	public function add_meta_boxes() {
-		// Add this metabox to every selected post	
-		add_meta_box( 
+		// Add this metabox to every selected post
+		add_meta_box(
 			sprintf('wp_evidence_hub_%s_section', $this->get_post_type() ),
 			sprintf('%s Information', ucwords(str_replace("_", " ", $this->get_post_type() ))),
 			array(&$this, 'add_inner_meta_boxes'),
@@ -205,7 +206,7 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 			'top',          // The part of the page where the edit screen section should be shown.
             'high'
 		);
-		add_meta_box( 
+		add_meta_box(
 			sprintf('wp_evidence_hub_%s_side_section', $this->get_post_type() ),
 			sprintf('%s Information', ucwords(str_replace("_", " ", $this->get_post_type() ))),
 			array(&$this, 'add_inner_meta_boxes_side'),
@@ -219,25 +220,25 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 		remove_meta_box('tagsdiv-evidence_hub_sector', $this->get_post_type(), 'side');
 		remove_meta_box('tagsdiv-evidence_hub_polarity', $this->get_post_type(), 'side');
 		Pronamic_Google_Maps_MetaBox::register($this->get_post_type(), 'normal', 'high');
-		
+
 	} // END public function add_meta_boxes()
-	
+
 	# Now move advanced meta boxes after the title:
 	public function foo_move_deck() {
-		
+
 		# Get the globals:
 		global $post, $wp_meta_boxes;
-	
+
 		# Output the "advanced" meta boxes:
 		do_meta_boxes(get_current_screen(), 'top', $post);
-		
+
 		# Remove the initial "advanced" meta boxes:
 		unset($wp_meta_boxes['post']['advanced']);
-		
+
 	}
-	
-	
-	
+
+
+
 	/**
 	* Add hypothesis column to wp-admin.
 	*
@@ -248,12 +249,12 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 				array('evidence_hub_hypothesis_id' => __( 'Hypothesis' )) +
 				array_slice($columns, 3, count($columns) - 1, true) ;
 	}
-	
+
 	/**
 	* Sets text and link for custom columns.
 	*
 	* @since 0.1.1
-	*/	
+	*/
 	public function column($column, $post_id) {
 		global $post;
 		switch (str_replace('evidence_hub_', '', $column)) {
@@ -268,5 +269,5 @@ class Evidence_Template extends Evidence_Hub_CustomPostType {
 		default :
 			break;
 		}
-	}  
+	}
 } // END class Post_Type_Template

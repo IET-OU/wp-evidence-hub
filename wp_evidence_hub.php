@@ -12,7 +12,7 @@ License: GPL2
 Copyright 2015  The Open Unversiity (web: open.ac.uk)
 
 This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License, version 2, as 
+it under the terms of the GNU General Public License, version 2, as
 published by the Free Software Foundation.
 
 This program is distributed in the hope that it will be useful,
@@ -48,7 +48,7 @@ if(!class_exists('Evidence_Hub'))
 		*
 		* @since 0.1.1
 		*/
-		public function __construct() {			
+		public function __construct() {
 			add_action('init', array(&$this, 'init'));
 			self::$options['cookies'] = get_option('display_cookie_notice');
 			self::$options['custom_head_foot'] = get_option('display_custom_head_foot');
@@ -119,7 +119,7 @@ if(!class_exists('Evidence_Hub'))
 			// add custom JSON API controllers
 			add_filter('json_api_controllers', array(&$this,'add_hub_controller'));
 			add_filter('json_api_hub_controller_path', array(&$this,'set_hub_controller_path'));
-			
+
 			if (self::$options['postrating'] === 'yes') {
 				// ratings
 				$this->_require( 'lib/wp-postratings/wp-postratings.php' );
@@ -130,7 +130,7 @@ if(!class_exists('Evidence_Hub'))
 				// Initialize Facetious library
 				$this->_require( 'lib/facetious/facetious.php' );
 			}
-			
+
 			if ( self::$options['cookies'] === 'yes'
 				&& !class_exists( 'Cookie_Notice' )) {
 				// Initialize Cookie Notice library
@@ -142,16 +142,16 @@ if(!class_exists('Evidence_Hub'))
 				$this->_require(
 				'lib/custom-headers-and-footers/custom-headers-and-footers.php' );
 			}
-			
+
 			// Initialize Settings pages in wp-admin
 			$this->_require(array( 'settings/settings.php', 'settings/cache.php' )); //TODO Tidy
             $Evidence_Hub_Settings = new Evidence_Hub_Settings();
 			$Evidence_Hub_Settings_Cache = new Evidence_Hub_Settings_Cache();
-			
+
 			// register custom query handling
 			add_filter('query_vars', array(&$this, 'evidence_hub_queryvars') );
 			add_action('pre_get_posts', array(&$this, 'evidence_hub_query'), 1);
-			
+
 			add_action('admin_notices', array(&$this, 'admin_notices'));
 		   	add_action('admin_enqueue_scripts', array(&$this, 'enqueue_autocomplete_scripts'),999);
 			add_action('wp_enqueue_scripts', array(&$this, 'enqueue_front_scripts') );
@@ -159,21 +159,21 @@ if(!class_exists('Evidence_Hub'))
 			// removed library plugin menus
 			add_action( 'admin_menu', array(&$this,'my_remove_named_menus'),999 );
 			add_action( 'admin_bar_menu', array(&$this,'remove_wp_nodes'), 999 );
-			
+
 			// open ajax for project autom complete
 			add_action('wp_ajax_evidence_hub_project_callback', array(&$this, 'ajax_evidence_hub_project_callback') );
 			add_action('wp_ajax_evidence_hub_if_project_exists_by_value', array(&$this, 'ajax_evidence_hub_if_project_exists_by_value') );
-			
+
 			// open ajax for match lookup
 			add_action('wp_ajax_evidence_match_lookup', array(&$this, 'ajax_evidence_match_lookup') );
-			
+
 			// post count functions
 			add_action( 'wp_head', array(&$this, 'eh_track_post_views') );
 			remove_action( 'wp_head', 'adjacent_posts_rel_link_wp_head', 10, 0);
-			
+
 			// prevent evidence contributors from seeing other image ulpoads
 			add_filter( 'ajax_query_attachments_args', array(&$this, 'user_restrict_media_library') );
-			
+
 			// debug function
 			add_action( 'wp_head', array(&$this, 'show_current_query') );
 			add_filter( 'tiny_mce_before_init', array(&$this, 'idle_function_to_tinymce') );
@@ -194,7 +194,7 @@ if(!class_exists('Evidence_Hub'))
 			self::$post_types[] = $post_type;
 		}
 
-		
+
 		public static function is_cacheable_post( $post_id ) {
 			return in_array( get_post_type( $post_id ), self::$post_types );
 		}
@@ -213,24 +213,24 @@ if(!class_exists('Evidence_Hub'))
 			$page_id = intval(get_option( 'hypothesis_template_page' )); //[Bug: #31]
 
 			if ($post->post_type == 'hypothesis' && $page_id) {
-				
+
 				// [TODO Seems to be theme specific]
 				global $content_width;
 				$content_width = 960;
-		
+
 				$wp_template = get_post_meta( $page_id, '_wp_page_template', true );
 				if ($wp_template && file_exists(get_stylesheet_directory() .'/'. $wp_template)) {
 					$single_template = get_stylesheet_directory() .'/'. $wp_template;
 					add_filter( 'body_class', array(&$this, 'evidence_hub_body_class') );
 				}
-				
+
 			}
 			$this->debug(array( 'single_template' => $single_template ));
 			return $single_template;
 		}
-		
+
 		/**
-		* Add full width to hypothesis. 
+		* Add full width to hypothesis.
 		*
 		* @since 0.1.1
 		*
@@ -241,8 +241,8 @@ if(!class_exists('Evidence_Hub'))
 			$classes[] = 'full-width';
 			return $classes;
 		}
-		
-		
+
+
 		/**
 		* Debug function to check wp_query. Add ?debug to URL to use.
 		*
@@ -257,17 +257,17 @@ if(!class_exists('Evidence_Hub'))
 			print_r( $wp_query );
 			echo '</textarea>';
 		}
-		
+
 		/**
     	* Hook into WP's init action hook.
 		*
 		* @since 0.1.1
     	*/
        public function init() {
-			$caps = array('read_evidence', 
-						  'delete_evidence', 
+			$caps = array('read_evidence',
+						  'delete_evidence',
 						  'edit_evidence');
-			
+
 			// define new role of Evidence Contributor to create but not publish/edit their evidence
 			global $wp_roles;
 			if ( ! isset( $wp_roles ) ){
@@ -277,27 +277,27 @@ if(!class_exists('Evidence_Hub'))
 			$wp_roles->add_role('evidence_contributor', 'Evidence Contributor', $adm->capabilities);
 			$contributor = get_role('evidence_contributor');
 			$contributor->add_cap('upload_files');
-			
+
 			$this->add_evidence_capability($contributor, $caps);
-			
+
 			// add capability to authors to create publish their evidence
 			$this->add_evidence_capability(get_role('author'), $caps);
-			
+
 			// add capability to editors to create publish evidence
 			$caps[] = 'evidence_admin';
 			$this->add_evidence_capability(get_role('editor'), $caps);
-			
+
 			// add capability to admin account to let only them them modify/add hypotheses
 			$caps[] = 'hypothesis_admin';
 			$this->add_evidence_capability(get_role('administrator'), $caps);
-			
-			
-			
+
+
+
 			// add permalink rewrites
 			$this->do_rewrites();
-			
+
 			$hub_taxs = self::$options['evidence_hub_tax'];
-			
+
 			// Types integration - add extra post types to registered taxonomies
 			$custom = get_option( 'wpcf-custom-types', array() );
 			foreach ( $custom as $post_type => $data ) {
@@ -309,13 +309,13 @@ if(!class_exists('Evidence_Hub'))
 					}
 				}
 			}
-			
+
 			foreach ($hub_taxs as $reg_tax_name => $reg_tax){
 				// register custom post type taxonomies
 				$args = $this->get_taxonomy_args($reg_tax['labels']['single'],$reg_tax['labels']['plural']);
 				register_taxonomy( $reg_tax_name, $reg_tax['post_types'], $args );
 			}
-			
+
 			// install contry codes/terms
 			$countries = get_terms( 'evidence_hub_country', array( 'hide_empty' => false ) );
 			// if no terms then lets add our terms
@@ -327,12 +327,12 @@ if(!class_exists('Evidence_Hub'))
 					}
 				}
 			}
-			
-			Pronamic_Google_Maps_Site::bootstrap();		
+
+			Pronamic_Google_Maps_Site::bootstrap();
 		}
-		
+
 		/**
-		 * Checks if a particular user has a role. 
+		 * Checks if a particular user has a role.
 		 * Returns true if a match was found.
 		 *
 		 * @param string $role Role name.
@@ -340,18 +340,18 @@ if(!class_exists('Evidence_Hub'))
 		 * @return bool
 		 */
 		public function appthemes_check_user_role( $role, $user_id = null ) {
-		 
+
 			if ( is_numeric( $user_id ) )
 			$user = get_userdata( $user_id );
 			else
 				$user = wp_get_current_user();
-		 
+
 			if ( empty( $user ) )
 			return false;
-		 
+
 			return in_array( $role, (array) $user->roles );
 		}
-			
+
 		/**
     	* Add extra capabilities to WP roles.
 		*
@@ -364,7 +364,7 @@ if(!class_exists('Evidence_Hub'))
 				$role->add_cap($cap);
 			}
 		}
-		
+
 		/**
     	* Prevents evidence contributors from see other image uploads.
 		* From http://stackoverflow.com/a/21710919/1027723
@@ -376,11 +376,11 @@ if(!class_exists('Evidence_Hub'))
 		public function user_restrict_media_library(  $query ) {
 			global $current_user;
 			if (!current_user_can('evidence_admin')){
-				$query['author'] = $current_user->ID ;	
+				$query['author'] = $current_user->ID ;
 			}
 			return $query;
 		}
-		
+
 		/**
     	* Register custom querystring variables.
 		*
@@ -394,7 +394,7 @@ if(!class_exists('Evidence_Hub'))
 
 		  return $qvars;
 		}
-		
+
 		/**
     	* Handle custom querystring for hyp_id.
 		*
@@ -402,7 +402,7 @@ if(!class_exists('Evidence_Hub'))
 		* @param array $query WP_query.
 		* @return array $query.
     	*/
-		public function evidence_hub_query($query) {	
+		public function evidence_hub_query($query) {
 
 		  // Include evidence content in tag archives [Bug: #28]
 		  if (is_category() || is_tag()) {
@@ -425,9 +425,9 @@ if(!class_exists('Evidence_Hub'))
 									);
 				$query->set( 'meta_query' ,$meta_query);
 				return;
-			} 
+			}
 		}
-		
+
 		/**
     	* Register controllers for custom JSON_API end points.
 		*
@@ -439,7 +439,7 @@ if(!class_exists('Evidence_Hub'))
 		  $controllers[] = 'hub';
 		  return $controllers;
 		}
-		
+
 		/**
     	* Register controllers define path custom JSON_API end points.
 		*
@@ -448,7 +448,7 @@ if(!class_exists('Evidence_Hub'))
 		public function set_hub_controller_path() {
 		  return sprintf("%s/api/hub.php", EVIDENCE_HUB_PATH);
 		}
-		
+
 		/**
     	* Remove Pronamic Google Map Library wp-admin menu option.
 		* Remove Dashboard, posts and comments for Evidence Contributors
@@ -459,7 +459,7 @@ if(!class_exists('Evidence_Hub'))
 			global $menu;
 			foreach ( $menu as $i => $item ) {
 				/*if ( 'pronamic_google_maps' == $item[2] ) {
-						unset( $menu[$i] );	
+						unset( $menu[$i] );
 				}*/
 				if (!current_user_can( 'evidence_admin' )){
 					if ('index.php' === $item[2] || 'edit.php' === $item[2] || 'edit-comments.php' === $item[2] || 'tools.php' === $item[2]){
@@ -469,7 +469,7 @@ if(!class_exists('Evidence_Hub'))
 	        }
 			return $item;
 		}
-		
+
 		/**
     	* Remove New Post from admin bar for Evidence Contributors
 		*
@@ -477,13 +477,13 @@ if(!class_exists('Evidence_Hub'))
     	*/
 		public function remove_wp_nodes() {
 			if (!current_user_can( 'evidence_admin' )){
-				global $wp_admin_bar;   
+				global $wp_admin_bar;
 				$wp_admin_bar->remove_node( 'new-post' );
 				$wp_admin_bar->remove_node( 'comments' );
 				$wp_admin_bar->remove_node( 'my-sites' );
 			}
 		}
-		
+
 		/**
     	* Handle custom admin notices.
 		*
@@ -500,7 +500,7 @@ if(!class_exists('Evidence_Hub'))
 				delete_option('evidence_hub_messages');
 			}
 		}
-		
+
 		/**
     	* Handle custom admin notices - push message for display.
 		*
@@ -512,7 +512,7 @@ if(!class_exists('Evidence_Hub'))
 			$messages[] = $message;
 			update_option('evidence_hub_messages', $messages);
 		}
-		
+
 		/**
     	* function to filter options array used in custom post types.
 		*
@@ -531,7 +531,7 @@ if(!class_exists('Evidence_Hub'))
 			}
 			return $newArr;
 		}
-		
+
 		/**
     	* Load additional CSS/JS to wp_head in wp-admin.
 		*
@@ -541,11 +541,11 @@ if(!class_exists('Evidence_Hub'))
 			global $typenow;
 			global $wp_styles;
 			global $wp_version;
-			
+
 			$scripts = array( 'jquery', 'jquery-ui-autocomplete', 'jquery-ui-datepicker','jquery-ui-tabs');
   			if ($typenow == 'evidence') {
 				$this->enqueue_leaflet_scripts();
-			} 
+			}
 			if ($typenow=='location') {
 				$scripts[] = 'pronamic_google_maps_admin';
 			}
@@ -553,7 +553,7 @@ if(!class_exists('Evidence_Hub'))
 			wp_enqueue_script( 'evidence-hub-autocomplete', plugins_url( 'js/script.js' , EVIDENCE_HUB_REGISTER_FILE ), $scripts, '', true );
 			wp_register_script( 'd3js', plugins_url( 'lib/map/lib/d3.v3.min.js' , EVIDENCE_HUB_REGISTER_FILE), array( 'jquery' )  );
 			wp_enqueue_script( 'd3js' );
-			
+
 			// dequeue Pronomic Google Maps Library scripts and requeue with modified location
 			wp_dequeue_script('pronamic_google_maps_admin');
 			wp_dequeue_style('pronamic_google_maps_admin');
@@ -565,13 +565,13 @@ if(!class_exists('Evidence_Hub'))
 								) );
 			wp_enqueue_script('pronamic_google_maps_admin_eh');
 			wp_enqueue_style('pronamic_google_maps_admin_eh');
-			
+
 			wp_dequeue_style('cookie-notice-admin');
 			wp_dequeue_style('cookie-notice-wplike');
-			
+
 			wp_enqueue_style('cookie-notice-admin_eh', EVIDENCE_HUB_URL.'/lib/cookie-notice/css/admin.css');
 			wp_enqueue_style('cookie-notice-wplike_eh', EVIDENCE_HUB_URL.'/lib/cookie-notice/css/wp-like-ui-theme.css');
-			
+
 			if (version_compare( $wp_version, '3.8', '<' )){
 				wp_register_style('dashicons', EVIDENCE_HUB_URL.'/css/dashicons.css'	);
 				wp_enqueue_style('dashicons');
@@ -600,7 +600,7 @@ if(!class_exists('Evidence_Hub'))
 		public function enqueue_front_scripts() {
 			global $wp_styles;
 			global $wp_version;
-			
+
 			$scripts = array( 'jquery', 'jquery-ui-autocomplete', 'jquery-ui-core', 'jquery-ui-tabs', 'jquery-ui-accordion',  'jquery-ui-datepicker', 'suggest');
 			wp_register_script('pronamic_google_maps_admin_eh', EVIDENCE_HUB_URL.'/lib/pronamic-google-maps/js/admin.js',	array( 'jquery', 'google-jsapi' ));
 			wp_register_style('pronamic_google_maps_admin_eh', EVIDENCE_HUB_URL.'/lib/pronamic-google-maps/css/admin.css'	);
@@ -611,9 +611,9 @@ if(!class_exists('Evidence_Hub'))
 					) );
 			wp_register_script( 'd3js', plugins_url( 'lib/map/lib/d3.v3.min.js' , EVIDENCE_HUB_REGISTER_FILE), array( 'jquery' )  );
 			wp_enqueue_script( 'd3js' );
-			
+
 			$this->enqueue_leaflet_scripts();
-			
+
 			wp_register_script( 'evidence_hub_script', plugins_url( 'js/script.js' , EVIDENCE_HUB_REGISTER_FILE), $scripts  );
 			wp_enqueue_script( 'evidence_hub_script' );
 			wp_register_script( 'evidence_hub_frontonlyscript', plugins_url( 'js/frontonlyscript.js' , EVIDENCE_HUB_REGISTER_FILE)  );
@@ -621,12 +621,12 @@ if(!class_exists('Evidence_Hub'))
 			wp_register_style( 'evidence_hub_style', plugins_url( 'css/style.css' , EVIDENCE_HUB_REGISTER_FILE ) );
 			wp_enqueue_style( 'evidence_hub_style');
 			wp_enqueue_style( 'facetious_widget', EVIDENCE_HUB_URL.'/lib/facetious/facetious.css' );
-			
+
 			wp_register_script( 'select2_script', plugins_url( 'js/select2/select2.min.js' , EVIDENCE_HUB_REGISTER_FILE), $scripts  );
 			wp_enqueue_script( 'select2_script' );
 			wp_enqueue_style( 'select2_style', plugins_url( 'js/select2/select2.css' , EVIDENCE_HUB_REGISTER_FILE ) );
-			
-			
+
+
 			// handle cookie-notice enqueue (required because of symbolic links)
 			$this->cookie = array(
 					'name' => 'cookie_notice_accepted',
@@ -635,7 +635,7 @@ if(!class_exists('Evidence_Hub'))
 			if(!(isset($_COOKIE[$this->cookie['name']]) && $_COOKIE[$this->cookie['name']] === $this->cookie['value'])){
 				wp_dequeue_script('cookie-notice-front');
 				wp_dequeue_style('cookie-notice-front');
-				
+
 				wp_enqueue_script('cookie-notice-front_eh', EVIDENCE_HUB_URL.'/lib/cookie-notice/js/front.js' ,array('jquery'));
 				$this->cookieoptions = get_option('cookie_notice_options');
 				$this->times = array(
@@ -661,23 +661,23 @@ if(!class_exists('Evidence_Hub'))
 						'cookieDomain' => (defined('COOKIE_DOMAIN') ? COOKIE_DOMAIN : '')
 					)
 				);
-	
+
 				wp_enqueue_style('cookie-notice-front_eh', EVIDENCE_HUB_URL.'/lib/cookie-notice/css/front.css');
 			}
-			
+
 			if (version_compare( $wp_version, '3.8', '<' )){
 				wp_register_style('dashicons', EVIDENCE_HUB_URL.'/css/dashicons.css'	);
 				wp_enqueue_style('dashicons');
 			}
 		}
-		
+
 		/**
     	* Creates an array for custom post type taxonomies.
 		*
 		* @since 0.1.1
 		* @param string $tax_single.
 		* @param string $tax_plural.
-		* @return array 
+		* @return array
     	*/
 		public static function get_taxonomy_args($tax_single, $tax_plural){
 			$labels = array(
@@ -692,9 +692,9 @@ if(!class_exists('Evidence_Hub'))
 			    'add_new_item'        => sprintf( __( 'Add New %s', 'evidence_hub' ), $tax_single ),
 			    'new_item_name'       => sprintf( __( 'New %s Name', 'evidence_hub' ), $tax_single ),
 			    'menu_name'           => sprintf( __( '%s', 'evidence_hub' ), $tax_plural )
-				
+
 			);
-		
+
 			return array(
 				'hierarchical'          => false,
 				'labels'                => $labels,
@@ -702,7 +702,7 @@ if(!class_exists('Evidence_Hub'))
 				'show_admin_column'     => true,
 				'query_var'             => true,
 				'rewrite'               => array( 'slug' => strtolower($tax_single)),
-			);		
+			);
 		}
 
 		/**
@@ -728,13 +728,13 @@ if(!class_exists('Evidence_Hub'))
 			foreach ($taxonomies as $taxonomy_id => $taxonomy) {
 				if (strpos($taxonomy_id, 'evidence_hub') !== 0) continue;
 				$value = wp_get_object_terms($post_id, $taxonomy_id);
-				
+
 				$taxonomy_id = substr($taxonomy_id, 13);
 				$taxonomy_slug = $taxonomy_id."_slug";
 				$name = array();
 				$slug = array();
 				foreach ($value as $v){
-					$name[] = $v->name;	
+					$name[] = $v->name;
 					$slug[] = $v->slug;
 				}
 				$post[$taxonomy_id] = (count($name)<=1) ? implode("",$name) : $name;
@@ -742,13 +742,13 @@ if(!class_exists('Evidence_Hub'))
 			}
 			return $post;
 		}
-		
+
 		/**
     	* Adds evidence_hub prefixed taxonomy terms and custom fields array of post ids.
 		*
 		* @since 0.1.1
 		* @param array $posts passed in using WP get_posts($args = array('fields' => 'ids')).
-		* @return array $posts_termed 
+		* @return array $posts_termed
     	*/
 		public static function add_terms($posts) {
 			$posts_termed = array();
@@ -757,27 +757,27 @@ if(!class_exists('Evidence_Hub'))
 			}
 			return $posts_termed;
 		}
-		
+
 		/**
     	* Adds ajaxable project name auto-complete.
 		*
 		* @since 0.1.1
-		* @return object 
+		* @return object
     	*/
 		public function ajax_evidence_hub_project_callback() {
 			global $wpdb;
-			
+
 			// if search term exists
 			if ( $search_term = ( isset( $_POST[ 'evidence_hub_project_search_term' ] ) && ! empty( $_POST[ 'evidence_hub_project_search_term' ] ) ) ? $_POST[ 'evidence_hub_project_search_term' ] : NULL ) {
 				if ( ( $projects = $wpdb->get_results( "SELECT posts.ID, posts.post_title, postmeta.meta_value  FROM $wpdb->posts posts INNER JOIN $wpdb->postmeta postmeta ON postmeta.post_id = posts.ID AND postmeta.meta_key ='_pronamic_google_maps_address' WHERE ( (posts.post_title LIKE '%$search_term%' OR postmeta.meta_value LIKE '%$search_term%') AND posts.post_type = 'project' AND post_status = 'publish' ) ORDER BY posts.post_title" ) )
 				&& is_array( $projects ) ) {
 					$results = array();
 					// loop through each user to make sure they are allowed
-					foreach ( $projects  as $project ) {								
+					foreach ( $projects  as $project ) {
 							$results[] = array(
 								'project_id'	=> $project->ID,
 								'label'			=> $project->post_title,
-								'address'		=> $project->meta_value, 
+								'address'		=> $project->meta_value,
 								);
 					}
 					// "return" the results
@@ -787,23 +787,23 @@ if(!class_exists('Evidence_Hub'))
 			}
 			die();
 		}
-		
+
 		/**
     	* Adds ajaxable project details.
 		*
 		* @since 0.1.1
-		* @return object 
+		* @return object
     	*/
 		public function ajax_evidence_hub_if_project_exists_by_value() {
 			if ( $project_id = ( isset( $_POST[ 'autocomplete_eh_project_id' ] ) && ! empty( $_POST[ 'autocomplete_eh_project_id' ] ) ) ? $_POST[ 'autocomplete_eh_project_id' ] : NULL ) {
 				$project_name = $_POST[ 'autocomplete_eh_project_value' ];
-			
+
 				$actual_project_name = get_the_title($project_id);
-				
+
 				if($project_name !== $actual_project_name){
 					echo json_encode( (object)array( 'notamatch' => 1 ) );
 					die();
-				} else {	
+				} else {
 					echo json_encode( (object)array( 'valid' => 1,
 													 //'map' => $mapcode,
 													 'country' => ($loc = wp_get_object_terms($project_id, 'evidence_hub_country')) ? $loc[0]->slug : NULL,
@@ -812,7 +812,7 @@ if(!class_exists('Evidence_Hub'))
 													 'zoom' => get_post_meta($project_id, '_pronamic_google_maps_zoom', true )));
 					die();
 				}
-			} 
+			}
 			echo json_encode( (object)array( 'noid' => 1 ) );
 			die();
 		}
@@ -820,7 +820,7 @@ if(!class_exists('Evidence_Hub'))
     	* Adds ajaxable evidence match lookup.
 		*
 		* @since 0.1.1
-		* @return object 
+		* @return object
     	*/
 		public function ajax_evidence_match_lookup() {
 			if (isset($_REQUEST['q']) && !empty($_REQUEST['q']) && isset($_REQUEST['lookup_field']) && !empty($_REQUEST['lookup_field'])){
@@ -853,24 +853,24 @@ if(!class_exists('Evidence_Hub'))
 					}
 						echo json_encode($results);
 				} else {
-					echo json_encode($args);	
+					echo json_encode($args);
 				}
-				
+
 				/* Restore original Post Data */
 				wp_reset_postdata();
 				die();
-			
-			} 
-			
+
+			}
+
 			if ( $project_id = ( isset( $_POST[ 'autocomplete_eh_project_id' ] ) && ! empty( $_POST[ 'autocomplete_eh_project_id' ] ) ) ? $_POST[ 'autocomplete_eh_project_id' ] : NULL ) {
 				$project_name = $_POST[ 'autocomplete_eh_project_value' ];
-			
+
 				$actual_project_name = get_the_title($project_id);
-				
+
 				if($project_name !== $actual_project_name){
 					echo json_encode( (object)array( 'notamatch' => 1 ) );
 					die();
-				} else {	
+				} else {
 					echo json_encode( (object)array( 'valid' => 1,
 													 //'map' => $mapcode,
 													 'country' => ($loc = wp_get_object_terms($project_id, 'evidence_hub_country')) ? $loc[0]->slug : NULL,
@@ -879,7 +879,7 @@ if(!class_exists('Evidence_Hub'))
 													 'zoom' => get_post_meta($project_id, '_pronamic_google_maps_zoom', true )));
 					die();
 				}
-			} 
+			}
 			echo json_encode( (object)array( 'noid' => 1 ) );
 			die();
 		}
@@ -889,24 +889,24 @@ if(!class_exists('Evidence_Hub'))
 		*
 		* @since 0.1.1
 		* @param int $post_id.
-		* @return string filtered post content 
+		* @return string filtered post content
     	*/
 		public function generate_excerpt($post_id = false) {
 			if ($post_id) $post = is_numeric($post_id) ? get_post($post_id) : $post_id;
 			else $post = $GLOBALS['post'];
-	
+
 			if (!$post) return '';
 			if (isset($post->post_excerpt) && !empty($post->post_excerpt)) return $post->post_excerpt;
 			if (!isset($post->post_content)) return '';
-		
+
 			$content = $raw_content = $post->post_content;
-		
+
 			if (!empty($content)) {
 				$content = strip_shortcodes($content);
 				$content = apply_filters('the_content', $content);
 				$content = str_replace(']]>', ']]&gt;', $content);
 				$content = strip_tags($content);
-	
+
 				$excerpt_length = apply_filters('excerpt_length', 55);
 				$words = preg_split("/[\n\r\t ]+/", $content, $excerpt_length + 1, PREG_SPLIT_NO_EMPTY);
 				if (count($words) > $excerpt_length) {
@@ -915,26 +915,26 @@ if(!class_exists('Evidence_Hub'))
 					$content .= "...";
 				} else $content = implode(' ', $words);
 			}
-		
+
 			return apply_filters('wp_trim_excerpt', $content, $raw_content);
 		}
-		
+
 		function idle_function_to_tinymce( $initArray ) {
-			if ( !is_admin() ) {					
-				$initArray['init_instance_callback'] = 'myCustomInitInstance'; 
-				$initArray['file_browser_callback'] = 'myCustomInitInstance'; // seems you need to call this if media_button true 
+			if ( !is_admin() ) {
+				$initArray['init_instance_callback'] = 'myCustomInitInstance';
+				$initArray['file_browser_callback'] = 'myCustomInitInstance'; // seems you need to call this if media_button true
 				//print_r($initArray);
 			}
 			return $initArray;
 		}
-		
-		
+
+
 		function force_default_editor() {
 			//allowed: tinymce, html, test
 			return 'tinymce';
 		}
-		
-		
+
+
 		/**
     	* Set country terms.
 		*
@@ -948,7 +948,7 @@ if(!class_exists('Evidence_Hub'))
 			foreach ($jsonIterator as $key => $val) {
 				if(!is_array($val)) {
 					$countries[$key] = $val;
-				} 
+				}
 			}
 			return $countries;
 		}
@@ -961,48 +961,48 @@ if(!class_exists('Evidence_Hub'))
 		private function do_rewrites(){
 			add_rewrite_rule("^country/([^/]+)/policy/sector/([^/]+)/page/([0-9]+)?",'index.php?post_type=policy&evidence_hub_country=$matches[1]&evidence_hub_sector=$matches[2]&paged=$matches[3]','top');
 			add_rewrite_rule("^country/([^/]+)/policy/sector/([^/]+)?",'index.php?post_type=policy&evidence_hub_country=$matches[1]&evidence_hub_sector=$matches[2]','top');
-			
+
 			add_rewrite_rule("^country/([^/]+)/policy/page/([0-9]+)?",'index.php?post_type=policy&evidence_hub_country=$matches[1]&paged=$matches[2]','top');
 			add_rewrite_rule("^country/([^/]+)/policy([^/]+)?",'index.php?post_type=policy&evidence_hub_country=$matches[1]','top');
-			
+
 			add_rewrite_rule("^country/([^/]+)/evidece/polarity/([^/]+)/sector/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&evidence_hub_polarity=$matches[2]&evidence_hub_sector=$matches[3]&paged=$matches[4]','top');
 			add_rewrite_rule("^country/([^/]+)/evidence/polarity/([^/]+)/sector/([^/]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&evidence_hub_polarity=$matches[2]&evidence_hub_sector=$matches[3]','top');
-			
+
 			add_rewrite_rule("^country/([^/]+)/hypothesis/([0-9]+)/[^/]+/polarity/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&hyp_id=$matches[2]&evidence_hub_polarity=$matches[3]&paged=$matches[4]','top');
-			add_rewrite_rule("^country/([^/]+)/hypothesis/([0-9]+)/[^/]+/polarity/([^/]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&hyp_id=$matches[2]&evidence_hub_polarity=$matches[3]','top');			
+			add_rewrite_rule("^country/([^/]+)/hypothesis/([0-9]+)/[^/]+/polarity/([^/]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&hyp_id=$matches[2]&evidence_hub_polarity=$matches[3]','top');
 			add_rewrite_rule("^country/([^/]+)/hypothesis/([0-9]+)/.*?",'index.php?post_type=hypothesis&p=$matches[2]','top');
-			
+
 			add_rewrite_rule("^country/([^/]+)/evidence/(polarity|sector)/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&evidence_hub_$matches[2]=$matches[3]&paged=$matches[4]','top');
 			add_rewrite_rule("^country/([^/]+)/evidence/(polarity|sector)/([^/]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&evidence_hub_$matches[2]=$matches[3]','top');
-			
+
 			add_rewrite_rule("^country/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]&paged=$matches[3]','top');
 			add_rewrite_rule("^country/([^/]+)?",'index.php?post_type=evidence&evidence_hub_country=$matches[1]','top');
-					
+
 			add_rewrite_rule("^evidence/polarity/([^/]+)/sector/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&evidence_hub_polarity=$matches[1]&evidence_hub_sector=$matches[2]&paged=$matches[3]','top');
 			add_rewrite_rule("^evidence/polarity/([^/]+)/sector/([^/]+)?",'index.php?post_type=evidence&evidence_hub_polarity=$matches[1]&evidence_hub_sector=$matches[2]','top');
-			
+
 			add_rewrite_rule("^evidence/(polarity|sector)/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&evidence_hub_$matches[1]=$matches[2]&paged=$matches[3]','top');
 			add_rewrite_rule("^evidence/(polarity|sector)/([^/]+)?",'index.php?post_type=evidence&evidence_hub_$matches[1]=$matches[2]','top');
-			
+
 			add_rewrite_rule("^policy/sector/([^/]+)/page/([0-9]+)?",'index.php?post_type=policy&evidence_hub_sector=$matches[1]&paged=$matches[2]','top');
 			add_rewrite_rule("^policy/sector/([^/]+)?",'index.php?post_type=policy&evidence_hub_sector=$matches[1]','top');
-	
+
 			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/evidence/polarity/([^/]+)/sector/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&hyp_id=$matches[1]&evidence_hub_polarity=$matches[3]&evidence_hub_sector=$matches[4]&paged=$matches[5]','top');
 			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/evidence/polarity/([^/]+)/sector/([^/]+)?",'index.php?post_type=evidence&hyp_id=$matches[1]&evidence_hub_polarity=$matches[3]&evidence_hub_sector=$matches[4]','top');
-			
+
 			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/evidence/(polarity|sector)/([^/]+)/page/([0-9]+)?",'index.php?post_type=evidence&hyp_id=$matches[1]&evidence_hub_$matches[3]=$matches[4]&paged=$matches[5]','top');
 			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/evidence/(polarity|sector)/([^/]+)?",'index.php?post_type=evidence&hyp_id=$matches[1]&evidence_hub_$matches[3]=$matches[4]','top');
-			
-			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/evidence/page/([0-9]+)?",'index.php?post_type=evidence&hyp_id=$matches[1]&paged=$matches[2]','top');  
+
+			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/evidence/page/([0-9]+)?",'index.php?post_type=evidence&hyp_id=$matches[1]&paged=$matches[2]','top');
 			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/evidence/?",'index.php?post_type=evidence&hyp_id=$matches[1]','top');
-			  
+
 			add_rewrite_rule("^hypothesis/([0-9]+)/([^/]+)/page/([0-9]+)?",'index.php?post_type=hypothesis&p=$matches[1]&paged=$matches[2]','top');
 
 			// "Proposition" - for LACE [Bug: #39]
 			add_rewrite_rule("^(hypothesis|proposition)/([0-9]+)/([^/]+)/?",'index.php?post_type=hypothesis&p=$matches[2]','top');
 
 		}
-		
+
 		/**
     	* formats required labels on data entry.
 		*
@@ -1011,14 +1011,15 @@ if(!class_exists('Evidence_Hub'))
     	*/
 		public static function format_label($option){
 			$lab = (isset($option['label'])) ? $option['label'].'%s:' : '';
-			if (is_admin()){
+			/*if (is_admin()){
 				$resp = (isset($option['required']) && $option['required']) ? '(*)' : '';
-			} else {
-				$resp = (isset($option['required']) && $option['required']) ? '(<span class="required">*</span>)' : '';
-			}
-			echo sprintf($lab, $resp);		
+			} else {*/
+				$resp = (isset($option['required']) && $option['required']) ?
+					'<span class="required" title="Required">*</span>' : '';
+			//}
+			echo sprintf($lab, $resp);
 		}
-		
+
 		/**
 		* record page view counts
 		* taken from http://www.wpbeginner.com/wp-tutorials/how-to-track-popular-posts-by-views-in-wordpress-without-a-plugin/
@@ -1038,17 +1039,17 @@ if(!class_exists('Evidence_Hub'))
 				update_post_meta($postID, $count_key, $count);
 			}
 		}
-		
-		
+
+
 		function eh_track_post_views($post_id) {
 			if ( !is_single() ) return;
 			if ( empty ( $post_id) ) {
 				global $post;
-				$post_id = $post->ID;    
+				$post_id = $post->ID;
 			}
 			$this->eh_set_post_views($post_id);
 		}
-		
+
 		// http://wordpress.org/support/topic/plugin-pronamic-google-maps-display-pronamic-meta-box-in-a-front-end-page#post-3124660
 		////////   PRONAMIC GOOGLE MAPS IN FRONT END   //////////
 		/**
@@ -1059,35 +1060,35 @@ if(!class_exists('Evidence_Hub'))
 		 * @param object|null $post the post object
 		 */
 		public static function wpufe_gmaps($post = null) {
-			
+
 			// Pronamic custom function to get custom fields
 			//$pgm = ( $post != null ) ? pronamic_get_google_maps_meta() : '' ;
 			//print_r(pronamic_get_google_maps_meta());
-			
+
 			$pgm_map_type = ( $post != null ) ? get_post_meta( $post->ID, '_pronamic_google_maps_map_type', true ) : '';
 			$pgm_zoom = ( $post != null ) ? get_post_meta( $post->ID, '_pronamic_google_maps_zoom', true ) : '';
 			$pgm_address = ( $post != null ) ? get_post_meta( $post->ID, '_pronamic_google_maps_address', true ) : '';
 			$pgm_latitude = ( $post != null ) ? get_post_meta( $post->ID, '_pronamic_google_maps_latitude', true ) : '';
 			$pgm_longitude = ( $post != null ) ? get_post_meta( $post->ID, '_pronamic_google_maps_longitude', true ) : '';
-		
+
 		?>
             <div id="pronamic-google-maps-meta-box" >
-            
+
             <li>
                     <input id="pgm-map-type-field" name="<?php echo Pronamic_Google_Maps_Post::META_KEY_MAP_TYPE; ?>" value="<?php echo esc_attr( $pgm_map_type ); ?>" type="hidden" />
                 <input id="pgm-zoom-field" name="<?php echo Pronamic_Google_Maps_Post::META_KEY_ZOOM; ?>" value="<?php echo esc_attr( $pgm_zoom ); ?>" type="hidden" />
                     <input id="pgm-active-field" name="<?php echo Pronamic_Google_Maps_Post::META_KEY_ACTIVE; ?>" value="true" type="hidden" />
-            
+
                 <label for="pgm-address-field">Address</label>
                 <textarea id="pgm-address-field" name="<?php echo Pronamic_Google_Maps_Post::META_KEY_ADDRESS; ?>" rows="2" cols="40"><?php echo esc_attr( $pgm_address ); ?></textarea>
                 <p class="description">Please type the address and click on "Geocode ↓" to find the location.</p>
-            
+
             </li>
             <li>
                 <input id="pgm-geocode-button" type="button" value="<?php _e('Geocode ↓', 'pronamic_google_maps'); ?>" class="button" name="pgm_geocode" />
-            
+
                 <input id="pgm-reverse-geocode-button" type="button" value="<?php echo _e('Reverse Geocode ↑', 'pronamic_google_maps'); ?>" class="button" name="pgm_reverse_geocode" />
-            
+
             </li>
             <li>
                     <label for="pgm-lat-field">Latitude</label>
@@ -1101,16 +1102,16 @@ if(!class_exists('Evidence_Hub'))
                 </li>
             <li>
                     <label for="pgm-canvas">Location result</label>
-            
+
                 <div id="pgm-canvas" style="width: 380px!important; height: 330px; border: 1px solid white; margin:auto"></div>
-            
+
                     <p class="description">Tip: Change the zoom level and map type to your own wishes.</p>
-            
+
             </li>
             </div>
 			<?php
 		}
-		
+
 		/**
 		* Activate the plugin
 		*
@@ -1129,12 +1130,12 @@ if(!class_exists('Evidence_Hub'))
 			}
 			// Do nothing
 		} // END public static function activate
-	
+
 		/**
 		* Deactivate the plugin
 		*
 		* @since 0.1.1
-		*/		
+		*/
 		public static function deactivate(){
 			Evidence_Hub_Shortcode::deactivate();
 		} // END public static function deactivate
@@ -1147,5 +1148,5 @@ if(class_exists('Evidence_Hub')){
 	register_deactivation_hook(EVIDENCE_HUB_REGISTER_FILE, array('Evidence_Hub', 'deactivate'));
 
 	// instantiate the plugin class
-	$wp_plugin_template = new Evidence_Hub();	
+	$wp_plugin_template = new Evidence_Hub();
 }
