@@ -298,14 +298,14 @@ vertical-align: initial!important;
   display:none;
 }
 
-.link {
+/* Fix colour contrast [a11y][Bug: 61] */
+svg .link {
   fill: none;
-  stroke: #000;
+  stroke: #777;
   stroke-opacity: .2;
 }
-
-.link:hover {
-  stroke-opacity: .5;
+svg .link:hover {
+  stroke-opacity: .4;
 }
 
 
