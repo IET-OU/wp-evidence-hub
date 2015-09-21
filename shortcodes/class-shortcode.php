@@ -9,7 +9,7 @@
  * @package Evidence_Hub
  * @subpackage Evidence_Hub_Shortcode
  */
- 
+
 abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 
 	const SHORTCODE = 'evidence_hub_shortcode';
@@ -321,15 +321,15 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 		return false;
 	};
 	</script>
-	<a href="#!zoom-out" id="map-reset-button" onclick="return OERRH.resetMap()"><i class="el-icon-refresh x-el-icon-zoom-out"></i>Zoom out</a> <i class=sep ></i>
-	<?php #<a href="#" id="map-reset-button" onclick="document.location.reload();return false"><i></i>Refresh map</a> ?>
-	<a href="#!full-screen" id="evidence-map-fullscreen"><i class=el-icon-fullscreen ></i>Full Screen</a>
+   <button id="map-reset-button" onclick="return OERRH.resetMap()"><i class="el-icon-refresh x-zoom-out"></i>Zoom out</button> <i class=sep ></i>
+   <button id="evidence-map-fullscreen"><i class=el-icon-fullscreen ></i>Full Screen</button>
 		</div>
 		<script src="<?php echo plugins_url( 'lib/map/lib/bigscreen.min.js' , EVIDENCE_HUB_REGISTER_FILE )?>" charset="utf-8"></script>
 		<script>
-		var element = document.getElementById('evidence-map');
+           var element = document.getElementById('evidence-map');
+
 		jQuery('#evidence-map-fullscreen').on('click', function () {
-			if (BigScreen.enabled) {
+                   if (BigScreen.enabled) {
 				BigScreen.request(element, onEnterEvidenceMap, onExitEvidenceMap);
 				// You could also use .toggle(element, onEnter, onExit, onError)
 			}
