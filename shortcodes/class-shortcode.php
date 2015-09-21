@@ -9,7 +9,7 @@
  * @package Evidence_Hub
  * @subpackage Evidence_Hub_Shortcode
  */
- 
+
 abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 
 	const SHORTCODE = 'evidence_hub_shortcode';
@@ -28,10 +28,10 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 
 		add_action('save_post', array(&$this, 'save_post'));
 		add_action('trash_post', array(&$this, 'trash_post'));
-		
+
 		//register_activation_hook(EVIDENCE_HUB_REGISTER_FILE, array(&$this, 'activate'));
 		//register_deactivation_hook(EVIDENCE_HUB_REGISTER_FILE, array(&$this, 'deactivate'));
-		
+
 		global $wpdb;
 		$wpdb->evidence_hub_shortcode_cache = $wpdb->prefix.'evidence_hub_shortcode_cache';
 	}
@@ -47,10 +47,10 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 	* Handles shortcode rendering and caching.
 	*
 	* @since 0.1.1
-	* @param array $options 
-	*/	
+	* @param array $options
+	*/
 	public function shortcode($options) {
-		$this->options = shortcode_atts($this->defaults, $options);	
+		$this->options = shortcode_atts($this->defaults, $options);
 		$this->prep_options();
 		$this->debug_shortcode( $options );
 		if (!$content = $this->get_cache()) {
@@ -65,23 +65,23 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 	/**
 	* WP Hook filter. Intercepts content rendering and adds shortcode as required.
 	*
-	* @since 0.1.1 
+	* @since 0.1.1
 	*/
 	public function pre_add_to_page($content) {
 		$options = get_option('evidence_hub_options');
 		$options['add_to_page'] = 1;
 		return $options['add_to_page'] ? $this->add_to_page($content) : $content;
 	}
-	
+
 	/**
-	* Holder for extended classes. 
+	* Holder for extended classes.
 	*
-	* @since 0.1.1 
+	* @since 0.1.1
 	*/
 	protected function add_to_page($content) {
 		return $content;
 	}
-	
+
 	public function make_meta_bar($post_types_with_shortcode){
 		ob_start();
 		extract($this->options);
@@ -93,18 +93,18 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 				$errors[] = "$post_id is not a valid post ID";
 			} else if (!in_array($post['type'], $post_types_with_shortcode)) {
 				$errors[] = "<a href='".get_permalink($post_id)."'>".get_the_title($post_id)."</a> is not the correct type of post";
-			} else if ($location=="header") { 
+			} else if ($location=="header") {
 				$this->meta_bar($post, $header_terms);
-			} else if ($location=="footer") { 
+			} else if ($location=="footer") {
 	  			$this->meta_bar($post, $footer_terms);
 			}
-		
-		if (count($errors)) return "[Shortcode errors (". $this->get_shortcode() ."): ".implode(', ', $errors)."]";	
+
+		if (count($errors)) return "[Shortcode errors (". $this->get_shortcode() ."): ".implode(', ', $errors)."]";
 		return ob_get_clean();
 	}
-	
+
 	/**
-	* Renders metadata assocated with custom postype. 
+	* Renders metadata assocated with custom postype.
 	*
 	* @since 0.1.1
 	* @param object $post single post object which has been through Evidence_Hub::add_meta.
@@ -112,7 +112,7 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 	*/
 	public function meta_bar($post, $options){
 		$out = array();
-		
+
 		// shorcode uses comma separated list of field ids to include in bar
 		foreach (explode(',', $options) as $type) {
 			$type = trim($type);
@@ -126,14 +126,14 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 			}
 		}
 		// remove NULL
-		$out = array_filter($out); 
-		if(!empty($out)){ 
+		$out = array_filter($out);
+		if(!empty($out)){
 			echo '<div id="evidence-meta">'.implode(" | ", $out).'</div>';
-       }	
+       }
 	}
-	
+
 	/**
-	* Handle custom fields rendering. 
+	* Handle custom fields rendering.
 	*
 	* @since 0.1.1
 	* @param object $post single post object which has been through Evidence_Hub::add_meta.
@@ -152,7 +152,7 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 		// handle post_type
 		} elseif($type == "type" ) {
 			return __(sprintf('<span class="meta_label">Type</span>: <a href="%s">%s</a>', get_post_type_archive_link($post[$type]), ucwords($post[$type])));
-		// special case for links	
+		// special case for links
 		} elseif(isset($post[$type]) && ('citation' == $type || 'resource_link' == $type || 'url' == $type)) {
 			// if valid link wrap in href
 			if (filter_var($post[$type], FILTER_VALIDATE_URL) === FALSE) {
@@ -170,9 +170,9 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 		}
 		return NULL;
 	}
-	
+
 	/**
-	* Turns options into booleans. 
+	* Turns options into booleans.
 	*
 	* @since 0.1.1
 	*/
@@ -321,15 +321,15 @@ abstract class Evidence_Hub_Shortcode extends Evidence_Hub_Base {
 		return false;
 	};
 	</script>
-	<a href="#!zoom-out" id="map-reset-button" onclick="return OERRH.resetMap()"><i class="el-icon-refresh x-el-icon-zoom-out"></i>Zoom out</a> <i class=sep ></i>
-	<?php #<a href="#" id="map-reset-button" onclick="document.location.reload();return false"><i></i>Refresh map</a> ?>
-	<a href="#!full-screen" id="evidence-map-fullscreen"><i class=el-icon-fullscreen ></i>Full Screen</a>
+   <button id="map-reset-button" onclick="return OERRH.resetMap()"><i class="el-icon-refresh x-zoom-out"></i>Zoom out</button> <i class=sep ></i>
+   <button id="evidence-map-fullscreen"><i class=el-icon-fullscreen ></i>Full Screen</button>
 		</div>
 		<script src="<?php echo plugins_url( 'lib/map/lib/bigscreen.min.js' , EVIDENCE_HUB_REGISTER_FILE )?>" charset="utf-8"></script>
 		<script>
-		var element = document.getElementById('evidence-map');
+           var element = document.getElementById('evidence-map');
+
 		jQuery('#evidence-map-fullscreen').on('click', function () {
-			if (BigScreen.enabled) {
+                   if (BigScreen.enabled) {
 				BigScreen.request(element, onEnterEvidenceMap, onExitEvidenceMap);
 				// You could also use .toggle(element, onEnter, onExit, onError)
 			}
@@ -415,7 +415,7 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 
 	// TODO: doesn't $wpdb need to be globalized in this function?
 	/**
-	* Create table for cached shortcodes. 
+	* Create table for cached shortcodes.
 	*
 	* @since 0.1.1
 	*/
@@ -430,9 +430,9 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 			UNIQUE KEY id(id)
 		);");
 	}
-	
+
 	/**
-	* Drop table for cached shortcodes. 
+	* Drop table for cached shortcodes.
 	*
 	* @since 0.1.1
 	*/
@@ -440,9 +440,9 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 		global $wpdb;
 		$wpdb->query("drop table $wpdb->evidence_hub_shortcode_cache");
 	}
-	
+
 	/**
-	* Hooks WP save process. Entire cache cleared on custom post type save. 
+	* Hooks WP save process. Entire cache cleared on custom post type save.
 	*
 	* @since 0.1.1
 	* @param string $post_id
@@ -454,24 +454,24 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 	}
 
 	/**
-	* Hooks WP trash process. Entire cache cleared on custom post type save. 
+	* Hooks WP trash process. Entire cache cleared on custom post type save.
 	*
 	* @since 0.1.1
 	* @param string $post_id
-	*/	
+	*/
 	public function trash_post($post_id) {
 		if (!Evidence_Hub::is_cacheable_post( $post_id )) return;
 		self::clear_cache();
 	}
-	
+
 	/**
-	* If caching is enabled fetch cached value. 
+	* If caching is enabled fetch cached value.
 	*
 	* @since 0.1.1
-	*/		
+	*/
 	protected function get_cache() {
 		if (!get_option('evidence_hub_caching')) return false;
-		
+
 		global $wpdb;
 		return $wpdb->get_var($wpdb->prepare(
 			"SELECT content
@@ -482,16 +482,16 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 			serialize($this->options)
 		));
 	}
-	
+
 	/**
-	* If caching is enabled save content to cache. 
+	* If caching is enabled save content to cache.
 	*
 	* @since 0.1.1
 	* @param string $content
-	*/	
+	*/
 	protected function cache($content) {
 		if (!get_option('evidence_hub_caching')) return false;
-		
+
 		global $wpdb;
 		$wpdb->insert($wpdb->evidence_hub_shortcode_cache, array(
 			'created' => current_time('mysql'),
@@ -500,9 +500,9 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 			'content' => $content,
 		));
 	}
-	
+
 	/**
-	* Get count of cached shortcode items for object. 
+	* Get count of cached shortcode items for object.
 	*
 	* @since 0.1.1
 	* @return string cache count
@@ -511,9 +511,9 @@ OERRH.<?php echo $js_key ?> = <?php echo $js_value ?>;
 		global $wpdb;
 		return $wpdb->get_results("SELECT shortcode, count(id) AS count FROM $wpdb->evidence_hub_shortcode_cache GROUP BY shortcode", OBJECT);
 	}
-	
+
 	/**
-	* Clear cache. 
+	* Clear cache.
 	*
 	* @since 0.1.1
 	*/
