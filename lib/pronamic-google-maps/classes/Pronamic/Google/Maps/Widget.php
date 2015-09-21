@@ -37,7 +37,8 @@ class Pronamic_Google_Maps_Widget extends WP_Widget {
 		$widgetOptions  = array( 'classname' => 'pronamic_google_maps_widget', 'description' => $description );
 		$controlOptions = array( 'width' => 500 );
 
-		parent::WP_Widget( 'pronamic_google_maps', __( 'Google Maps', 'pronamic_google_maps' ), $widgetOptions, $controlOptions );
+		//Was: parent::WP_Widget(...) [Bug: #62]
+		parent::__construct( 'pronamic_google_maps', __( 'Google Maps', 'pronamic_google_maps' ), $widgetOptions, $controlOptions );
 	}
 
 	//////////////////////////////////////////////////
