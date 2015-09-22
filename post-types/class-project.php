@@ -42,9 +42,10 @@ class Project_Template extends Evidence_Hub_CustomPostType {
 					'not_found_in_trash' => __(sprintf('No found in Trash%s', $this->plural)),
 				),
 				'public' => true,
-				'description' => __("A location"),
+				'description' => __('A relevant project or piece of research that does not directly provide evidence.'),
+				'taxonomies' => array( 'post_tag' ), //[Bug: #63]
 				'supports' => array(
-					'title', 'editor', 'excerpt', 'author', 'comments' 
+					'title', 'editor', 'excerpt', 'author', 'comments'
 				),
 				'capabilities' => array(
 					'edit_post'          => 'edit_evidence',
@@ -62,9 +63,9 @@ class Project_Template extends Evidence_Hub_CustomPostType {
 				'menu_position' => 30,
 				'menu_icon' => EVIDENCE_HUB_URL.'images/icons/location.png',
 			)
-		);	
+		);
 	}
-	
+
 	/**
 	* Register custom post type fields.
 	*
@@ -106,8 +107,8 @@ class Project_Template extends Evidence_Hub_CustomPostType {
 	* @since 0.1.1
 	*/
 	public function add_meta_boxes() {
-		// Add this metabox to every selected post	
-		add_meta_box( 
+		// Add this metabox to every selected post
+		add_meta_box(
 			sprintf('wp_evidence_hub_%s_section', $this->get_post_type()),
 			sprintf('%s Information', ucwords(str_replace("_", " ", $this->get_post_type() ))),
 			array(&$this, 'add_inner_meta_boxes'),
@@ -115,18 +116,18 @@ class Project_Template extends Evidence_Hub_CustomPostType {
 			'normal',
 			'high'
 		);
-		add_meta_box( 
+		add_meta_box(
 			sprintf('wp_evidence_hub_%s_side_section', $this->get_post_type()),
 			sprintf('%s Information', ucwords(str_replace("_", " ", $this->get_post_type() ))),
 			array(&$this, 'add_inner_meta_boxes_side'),
 			$this->get_post_type() ,
 			'side',
 			'high'
-		);	
+		);
 		remove_meta_box('tagsdiv-evidence_hub_country',$this->get_post_type(), 'side');
 		Pronamic_Google_Maps_MetaBox::register($this->get_post_type() , 'normal', 'high');
-		
-					
+
+
 	} // END public function add_meta_boxes()
 
 } // END class Post_Type_Template
