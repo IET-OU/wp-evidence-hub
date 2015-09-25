@@ -1797,7 +1797,7 @@ z-index:9999;
 .geomap-key ul {
 	padding: 0;
 }
-.geomap-key .marker {
+.geomap-key .marker, .geomap-key .ac-marker {
 	list-style: none;
 	background-repeat: no-repeat;
 	background-position: left;
@@ -1805,6 +1805,15 @@ z-index:9999;
 	margin-left: 7px;
 	margin-top: 3px;
 	min-height: 25px;
+}
+.geomap-key .ac-marker {
+	margin-left: 0;
+	padding: 0;
+}
+.geomap-key .ac-marker img {
+	display: inline-block;
+	vertical-align: middle;
+	padding: 1px 12px 1px 7px;
 }
 .geomap-key .marker.evidence {
 	background-image: url(../images/icons/marker-evidence.png);
@@ -1833,9 +1842,12 @@ z-index:9999;
 .geomap-key .marker.policy-regional {
 	background-image: url(../images/icons/marker-policy-regional.png);
 }
-.geomap-key .marker { display: none; }
+.geomap-key .marker, .geomap-key .ac-marker { display: none; }
+.geomap-key.key-type-evidence .ac-marker.evidence,
 .geomap-key.key-type-evidence .marker.evidence { display: block; }
+.gepmap-key.key-type-project .ac-marker.project,
 .geomap-key.key-type-project .marker.project { display: block; }
+.geomap-key.key-type-policy .ac-marker.policy,
 .geomap-key.key-type-policy .marker.policy { display: block; }
 
 .geomap-key .marker.cluster {
