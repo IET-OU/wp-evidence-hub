@@ -135,6 +135,17 @@ text-align:left;
 	box-shadow:none;
 }
 
+svg #barchart .label {
+	font-size: 11px;
+}
+
+/* MSIE 11 */
+#evidence-map > svg {
+	min-height: 500px;
+	overflow: hidden;
+}
+
+
 /* Internet Explorer <= 8 message (MSIE8) [Bug: #8].
 */
 .oer-chart-no-js {
