@@ -155,6 +155,9 @@ function renderLayer(switches){
 
 							marker = new L.Marker(new L.LatLng(coord[1], coord[0]), {
 									icon: customIcon(prop, class_name),
+									// Accessibility [Bug: #61]
+									keyboard: true,
+									alt: no_loc_text + " (ALT)",
 									title: no_loc_text
 								})
 								.bindPopup(formattedText(prop));
