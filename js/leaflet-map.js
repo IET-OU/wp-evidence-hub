@@ -2,7 +2,7 @@
  @author			mhawksey
  @copyright			CC BY
  @license			MIT License (http://www.opensource.org/licenses/mit-license.php)
- 
+
 */
 var OERRH = OERRH || {};
 
@@ -38,14 +38,14 @@ map.addControl(new filterControl());
 // Spiderfier close markers
 //var oms = new OverlappingMarkerSpiderfier(map);
 
-// helper function to return icons for different types 
+// helper function to return icons for different types
 var customIcon = function (prop, className) {
 					var options = {	shadowUrl: iconuri+'marker-shadow.png',
 									iconSize: [25, 41],
 									iconAnchor: [12, 41],
 									popupAnchor: [1, -34],
 									shadowSize: [41, 41]};
-	
+
 					if (prop.type == 'evidence' || prop.type == 'project'){
 						var m = [prop.type || null, prop.polarity || null];
 					} else if (prop.type == 'policy'){
@@ -59,7 +59,7 @@ var customIcon = function (prop, className) {
 						var m = ['project'];
 					}
 					m = m.filter(function(v) { return v !== null; });
-					
+
 					options.iconUrl = iconuri+'marker-'+m.join('-')+'.png';
 					options.className = 'id-' + prop.id +' '+ className;
 					return new LeafIcon(options)
@@ -80,16 +80,16 @@ var formattedText = function (d){
 			  '<div class="poptr">' + tType +'</div>' +
 			  '<div class="poptr">' + tHyp +'</div>' +
 			  '<div class="poptr">' + tPol +'</div>' +
-			  '<div class="poptr">' + tSector +'</div>' + 
-			  '<div class="poptr">' + tLoc +'</div>' + 
+			  '<div class="poptr">' + tSector +'</div>' +
+			  '<div class="poptr">' + tLoc +'</div>' +
 			'</div>' +
 			'<div class="poptr">' + d.desc +' '+tUrl+'</div>';
 }
 
 //var markers = L.markerClusterGroup({ spiderfyOnMaxZoom: true, showCoverageOnHover: false, zoomToBoundsOnClick: false, disableClusteringAtZoom: 4});
 var markers = L.markerClusterGroup({ spiderfyOnMaxZoom: true, showCoverageOnHover: false, zoomToBoundsOnClick: false});
-// add markers from geoJson written to page (doing it this way becase hubPoints will be cached)		
-	
+// add markers from geoJson written to page (doing it this way becase hubPoints will be cached)
+
 var markerArray = [];
 //var tableArray = [];
 var markerMap = {};
@@ -158,7 +158,7 @@ function renderLayer(switches){
 									title: no_loc_text
 								})
 								.bindPopup(formattedText(prop));
-							
+
 							markerMap[prop.id] = marker;
 							markerArray.push(marker);
 						}
@@ -170,22 +170,22 @@ function renderLayer(switches){
 function testSwitches(s, prop){
 	var row = [];
 	if (s['type'] == 'evidence' && prop['polarity'] == '' && prop['hypothesis'] != 'Unassigned'){
-		return false;	
+		return false;
 	}
 	var allS = Object.keys(s).map(function(x){return s[x];}).join('');
 	if (allS == ""){
-		return true;	
+		return true;
 	}
 	var set = "";
 	var hit = "";
 	for (var k in s) {
 		if (s[k] !=""){
-			set += '1';	
+			set += '1';
 		} else {
 			set += '0';
 		}
 		if(s[k] !="" && (prop[k] == s[k] || (prop[k]!="" && prop[k] instanceof Array && prop[k].indexOf(s[k]) > -1))){
-			hit +='1';	
+			hit +='1';
 		} else {
 			hit +='0';
 		}
@@ -193,9 +193,9 @@ function testSwitches(s, prop){
 	}
 	if (set === hit){
 		tableArray.push(row);
-		return true;	
+		return true;
 	}
-	
+
 	return false;
 }
 
@@ -204,17 +204,17 @@ markers.on('clusterclick', function (a) {
 		});
 map.addLayer(markers);
 var addTitle = function(){
-	
-	d3.xml(pluginurl+'images/logo.svg', "image/svg+xml", function(xml) {  
+
+	d3.xml(pluginurl+'images/logo.svg', "image/svg+xml", function(xml) {
 	  var importedNode = importNode(xml.documentElement, true);
-		jQuery('.leaflet-top.leaflet-left').append('<div id="maplogoholder"></div>'); 
+		jQuery('.leaflet-top.leaflet-left').append('<div id="maplogoholder"></div>');
 		var logo = d3.select('#maplogoholder')
 		.append('svg')
 		.append("g")
 		.attr('id', 'maplogo')
 		.attr('transform', 'scale(' + [0.7,0.7] + ')translate(' + [24, 14] + ')');;
-		
-		document.getElementById('maplogo').appendChild(importedNode.cloneNode(true)); 
+
+		document.getElementById('maplogo').appendChild(importedNode.cloneNode(true));
 	});
 };
 //map.fitBounds(markers.getBounds());
@@ -294,13 +294,13 @@ jQuery(document).ready(function($){
 					 console.log("T"),
 					 false
 				  );
-				 
+
 	});
 	$(".google-visualization-table-td").click(function () {
 		console.log(this);
 	});
 	$(".tbl-header").click(function () {
-	
+
 		$header = $(this);
 		//getting the next element
 		$content = $header.next();
@@ -313,7 +313,7 @@ jQuery(document).ready(function($){
 				return $content.is(":visible") ? "▼" : "▲";
 			});
 		});
-	
+
 	});
 	$('a.geo_pop').live('click', function(){
 		customPop($(this).attr('href'));
