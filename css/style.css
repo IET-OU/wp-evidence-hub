@@ -135,9 +135,6 @@ text-align:left;
 	box-shadow:none;
 }
 
-svg #barchart .label {
-	font-size: 11px;
-}
 
 /* MSIE 11 */
 #evidence-map > svg {
@@ -293,7 +290,7 @@ vertical-align: initial!important;
 	bottom: 50px;
 	left: 15px;
 }
-.node rect {
+svg .node rect {
   /*cursor: move;*/
   fill-opacity: .8;
   shape-rendering: crispEdges;
@@ -302,7 +299,6 @@ vertical-align: initial!important;
 .node text {
   pointer-events: none;
   text-shadow: 0 1px 0 #fff;
-  font-size:11px;
   font-family: "Open Sans", Helvetica, Arial, "Nimbus Sans L", sans-serif;
 }
 .node text.hide {
@@ -318,6 +314,19 @@ svg .link {
 svg .link:hover {
   stroke-opacity: .4;
 }
+
+/* SVG-font [a11y][Bug: 61] */
+body svg #barchart .annotation,
+body svg #barchart .valueNegative,
+body svg #barchart .valuePositive,
+body svg #barchart .valueNegative.world,
+body svg #barchart .valuePositive.world,
+svg #sandisplay .node text,
+body svg #barchart .label {
+  font-size: .82em; /* Was: 9px - 11px */
+  font-size: .92rem;
+}
+
 
 
 /*THEME-specific */
